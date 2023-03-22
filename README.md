@@ -46,14 +46,13 @@ For more info, see [link](https://coral.ai/docs/edgetpu/multiple-edgetpu/#perfor
 
 ## Installation
 
-- Clone this repository
+- Clone this repository & Go into the repository
+    ```
+    git clone https://github.com/adamp87/pigeon.git
+    cd pigeon
+    ```
 
-    `git clone https://github.com/adamp87/pigeon-detection.git`;
-
-- Go into the repository
-
-    `cd pigeon-detection`;
-
+    
 - Install dependencies (optionally, set up virtual environment)
   - `conda create -n pigeon python=3.7` (optional),
   - `conda activate pigeon` (optional),
