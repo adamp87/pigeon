@@ -4,7 +4,6 @@ import logging as log
 
 import cv2
 import numpy as np
-
 from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.adapters import classify
@@ -12,6 +11,9 @@ from pycoral.utils.edgetpu import run_inference
 from pycoral.utils.edgetpu import list_edge_tpus
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
+
+from yolo import yolov7
+from yolo import yolov8
 
 
 def pigeon_detected() -> None:
@@ -29,7 +31,7 @@ def draw_debug_info(img: np.ndarray, frame_idx: int, proc_time: float) -> None:
         (0, 255, 255),
         1,
         cv2.LINE_AA,
-        )
+    )
     cv2.putText(
         img,
         "proc_time: %s ms" % round(proc_time * 1000, 0),
@@ -39,10 +41,11 @@ def draw_debug_info(img: np.ndarray, frame_idx: int, proc_time: float) -> None:
         (0, 255, 255),
         1,
         cv2.LINE_AA,
-        )
+    )
 
 
 def main() -> None:
+    detector_names = ["ssd", "yolov7", "yolov8"]
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--input', required=True,
                         help='Path of video/url to process')
@@ -58,6 +61,8 @@ def main() -> None:
                         help='Device location for detection')
     parser.add_argument('-t1', '--tpu_1', type=str,
                         help='Device location for classification')
+    parser.add_argument('-d', '--detector', type=str, default='ssd',
+                        help='Object Detector [{0}]'.format(','.join(detector_names)))
     args = parser.parse_args()
 
     if args.verbose == 1:
@@ -69,7 +74,14 @@ def main() -> None:
     args.labels_coco = r"models/coco_labels.txt"
     args.labels_bird = r"models/inat_bird_labels.txt"
     args.model_pigeon = r"models/mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite"
-    args.model_detect = r"models/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite"
+    if args.detector == "ssd":
+        args.model_detect = r"models/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite"
+    elif args.detector == "yolov7":
+        args.model_detect = r"models/yolov7tiny_relu6.tflite"
+    elif args.detector == "yolov8":
+        args.model_detect = r"models/yolov8n_relu6.tflite"
+    else:
+        raise RuntimeError("Unknown detector requested")
 
     # set up edge devices
     tpu_list = list_edge_tpus()
@@ -138,8 +150,15 @@ def main() -> None:
         # detect objects in frame
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # rgb image
         img_det = cv2.resize(img_rgb, inference_detect_size)  # resize for detection
-        run_inference(interpreter_detect, img_det.tobytes())  # detection of objects
-        objs = detect.get_objects(interpreter_detect, args.threshold)  # get detected object
+        if args.detector == "ssd":
+            run_inference(interpreter_detect, img_det.tobytes())  # detection of objects
+            objs = detect.get_objects(interpreter_detect, args.threshold)  # get detected object
+        elif args.detector == "yolov7":
+            objs = yolov7(img_det, interpreter_detect, args.threshold)
+        elif args.detector == "yolov8":
+            objs = yolov8(img_det, interpreter_detect, args.threshold)
+        else:
+            raise RuntimeError("Unknown detector selected")
 
         for obj in objs:  # for each object
             obj_label = labels_coco.get(obj.id, obj.id)  # get label
