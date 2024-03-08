@@ -46,6 +46,23 @@ For more info, see [link](https://coral.ai/docs/edgetpu/multiple-edgetpu/#perfor
 
 ## Installation
 
+### Devcontainer using VSCode
+
+ - Set up docker based on:
+   - https://docs.docker.com/engine/install/raspberry-pi-os/ (32bit)
+   - https://docs.docker.com/engine/install/debian/ (64bit)
+   - https://docs.docker.com/engine/install/linux-postinstall/
+
+- Issue with root "Failed to load delegate from libedgetpu.so.1":
+   - https://github.com/tensorflow/tensorflow/issues/32743
+   - https://github.com/google-coral/tflite/issues/3
+
+- Run your devcontainer in VSCode
+
+- Download pretrained models (see below)
+
+### Linux Base System
+
 - Clone this repository
 
     `git clone https://github.com/adamp87/pigeon-detection.git`;
