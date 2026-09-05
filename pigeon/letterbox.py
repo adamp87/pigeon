@@ -37,12 +37,6 @@ def letterbox(
     im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return im, r, (dw, dh)
 
-    if is_letterbox:
-        box = np.array([x0,y0,x1,y1])
-        box -= np.array(dwdh*2)
-        box /= ratio
-        box = box.round().astype(np.int32).tolist()
-
 
 if __name__ == '__main__':
     letterbox(np.zeros((128, 128)))

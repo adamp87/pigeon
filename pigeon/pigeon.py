@@ -166,9 +166,15 @@ def main() -> None:
                 continue  # not a bird
 
             # get bbox of bird in original image
-            bbox = obj.bbox.scale(det_scale[0], det_scale[1])
-            x0, y0 = int(bbox.xmin), int(bbox.ymin)
-            x1, y1 = int(bbox.xmax), int(bbox.ymax)
+            if args.detector == 'ssd':
+                bbox = obj.bbox.scale(det_scale[0], det_scale[1])
+                x0, y0 = int(bbox.xmin), int(bbox.ymin)
+                x1, y1 = int(bbox.xmax), int(bbox.ymax)
+            else:  # YOLO models
+                x0 = int(obj.bbox.xmin * det_scale[0])
+                y0 = int(obj.bbox.ymin * det_scale[1])
+                x1 = int(obj.bbox.xmax * det_scale[0])
+                y1 = int(obj.bbox.ymax * det_scale[1])
 
             # classify one detected bird
             img_bird = img_rgb[y0:y1, x0:x1, :]  # get image of bird
