@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pigeon"
+version = "0.2.0"
+description = "Real-time Pigeon detection and repellent system for Raspberry Pi & Edge devices"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Adam P." }
+]
+license = { text = "MIT" }
+dependencies = [
+    "opencv-python>=4.5.0",
+    "numpy>=1.22.0",
+]
+
+[project.optional-dependencies]
+# RPi5 / Modern devices / CPU / GPU inference via LiteRT
+tflite = [
+    "ai-edge-litert>=1.0.0",
+]
+
+# RPi5 / Edge devices with Coral Edge TPU (Python <=3.9 on Linux)
+coral = [
+    "numpy>=1.22.0,<2.0.0; python_version <= '3.9' and sys_platform == 'linux'",
+    "pycoral>=2.0.0; python_version <= '3.9' and sys_platform == 'linux'",
+]
+
+
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pre-commit>=3.7.0",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux' and python_version == '3.9'",
+    "sys_platform == 'linux' and python_version == '3.12'",
+]
+
+[[tool.uv.index]]
+name = "coral"
+url = "https://google-coral.github.io/py-repo/"
+explicit = false
+
+[project.scripts]
+pigeon = "pigeon.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pigeon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["B008"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true

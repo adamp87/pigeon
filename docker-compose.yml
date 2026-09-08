@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.tflite
+    volumes:
+      - .:/workspaces/pigeon:cached
+      - ./.cline:/home/user/.cline
+    working_dir: /workspaces/pigeon
+    command: sleep infinity

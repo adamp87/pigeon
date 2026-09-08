@@ -1,0 +1,22 @@
+# User configuration override.
+# You can switch between LiteRT (RPi5 / PC) and Coral (RPi5 Dual EdgeTPU / USB Accelerators) by uncommenting the desired service configuration.
+
+services:
+  # Option 1: LiteRT environment (Default - RPi5 / PC / Python 3.12)
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.tflite
+    # devices:
+    #   - /dev/video0:/dev/video0   # Host camera device
+
+  # Option 2: Coral Edge TPU environment (RPi5 / Dual USB Coral Accelerators / Python 3.9)
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/Dockerfile.coral
+  #   privileged: true
+  #   volumes:
+  #     - /dev/bus/usb:/dev/bus/usb # Dynamic passthrough for USB Coral TPU devices across re-enumeration
+  #   devices:
+  #     - /dev/video0:/dev/video0   # Host camera device
